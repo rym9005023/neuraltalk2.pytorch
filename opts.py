@@ -14,7 +14,7 @@ def parse_opt():
     parser.add_argument('--cnn_weight', type=str, default='resnet101.pth',
                     help='path to CNN tf model. Note this MUST be a resnet right now.')
     parser.add_argument('--start_from', type=str, default=None,
-                    help="""continue training from saved model at this path. Path must contain files saved by previous training process: 
+                    help="""continue training from saved model at this path. Path must contain files saved by previous training process:
                         'infos.pkl'         : configuration;
                         'checkpoint'        : paths to model file(s) (created by tf).
                                               Note: this file contains absolute paths, be careful when moving files around;
@@ -22,7 +22,7 @@ def parse_opt():
                     """)
 
     # Model settings
-    parser.add_argument('--caption_model', type=str, default="show_tell",
+    parser.add_argument('--caption_model', type=str, default="adaatt",
                     help='show_tell, show_attend_tell, all_img, fc, att2in, att2in2, adaatt, adaattmo')
     parser.add_argument('--rnn_size', type=int, default=512,
                     help='size of the rnn in number of hidden nodes in each layer')
@@ -40,7 +40,7 @@ def parse_opt():
                     help='2048 for resnet, 512 for vgg')
 
     # Optimization: General
-    parser.add_argument('--max_epochs', type=int, default=-1,
+    parser.add_argument('--max_epochs', type=int, default=40,
                     help='number of epochs')
     parser.add_argument('--batch_size', type=int, default=16,
                     help='minibatch size')
@@ -48,11 +48,11 @@ def parse_opt():
                     help='clip gradients at this value')
     parser.add_argument('--drop_prob_lm', type=float, default=0.5,
                     help='strength of dropout in the Language Model RNN')
-    parser.add_argument('--finetune_cnn_after', type=int, default=-1,
+    parser.add_argument('--finetune_cnn_after', type=int, default=20,
                     help='After what epoch do we start finetuning the CNN? (-1 = disable; never finetune, 0 = finetune from start)')
     parser.add_argument('--seq_per_img', type=int, default=5,
                     help='number of captions to sample for each image during training. Done for efficiency since CNN forward pass is expensive. E.g. coco has 5 sents/image')
-    parser.add_argument('--beam_size', type=int, default=1,
+    parser.add_argument('--beam_size', type=int, default=3,
                     help='used when sample_max = 1, indicates number of beams in beam search. Usually 2 or 3 works well. More is not better. Set this to 1 for faster runtime but a bit worse performance.')
 
     #Optimization: for the Language Model
@@ -60,11 +60,11 @@ def parse_opt():
                     help='what update to use? rmsprop|sgd|sgdmom|adagrad|adam')
     parser.add_argument('--learning_rate', type=float, default=4e-4,
                     help='learning rate')
-    parser.add_argument('--learning_rate_decay_start', type=int, default=-1, 
+    parser.add_argument('--learning_rate_decay_start', type=int, default=20,
                     help='at what iteration to start decaying learning rate? (-1 = dont) (in epoch)')
-    parser.add_argument('--learning_rate_decay_every', type=int, default=3, 
+    parser.add_argument('--learning_rate_decay_every', type=int, default=50,
                     help='every how many iterations thereafter to drop LR?(in epoch)')
-    parser.add_argument('--learning_rate_decay_rate', type=float, default=0.8, 
+    parser.add_argument('--learning_rate_decay_rate', type=float, default=0.5,
                     help='every how many iterations thereafter to drop LR?(in epoch)')
     parser.add_argument('--optim_alpha', type=float, default=0.8,
                     help='alpha for adam')
@@ -85,13 +85,13 @@ def parse_opt():
     parser.add_argument('--cnn_weight_decay', type=float, default=0,
                     help='L2 weight decay just for the CNN')
 
-    parser.add_argument('--scheduled_sampling_start', type=int, default=-1, 
+    parser.add_argument('--scheduled_sampling_start', type=int, default=-1,
                     help='at what iteration to start decay gt probability')
-    parser.add_argument('--scheduled_sampling_increase_every', type=int, default=5, 
+    parser.add_argument('--scheduled_sampling_increase_every', type=int, default=5,
                     help='every how many iterations thereafter to gt probability')
-    parser.add_argument('--scheduled_sampling_increase_prob', type=float, default=0.05, 
+    parser.add_argument('--scheduled_sampling_increase_prob', type=float, default=0.05,
                     help='How much to update the prob')
-    parser.add_argument('--scheduled_sampling_max_prob', type=float, default=0.25, 
+    parser.add_argument('--scheduled_sampling_max_prob', type=float, default=0.25,
                     help='Maximum scheduled sampling prob.')
 
 
@@ -102,12 +102,12 @@ def parse_opt():
                     help='how often to save a model checkpoint (in iterations)?')
     parser.add_argument('--checkpoint_path', type=str, default='save',
                     help='directory to store checkpointed models')
-    parser.add_argument('--language_eval', type=int, default=0,
+    parser.add_argument('--language_eval', type=int, default=1,
                     help='Evaluate language as well (1 = yes, 0 = no)? BLEU/CIDEr/METEOR/ROUGE_L? requires coco-caption code from Github.')
     parser.add_argument('--losses_log_every', type=int, default=25,
-                    help='How often do we snapshot losses, for inclusion in the progress dump? (0 = disable)')       
-    parser.add_argument('--load_best_score', type=int, default=1,
-                    help='Do we load previous best score when resuming training.')       
+                    help='How often do we snapshot losses, for inclusion in the progress dump? (0 = disable)')
+    parser.add_argument('--load_best_score', type=int, default=0,
+                    help='Do we load previous best score when resuming training.')
 
     # misc
     parser.add_argument('--id', type=str, default='',
