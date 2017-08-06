@@ -3,10 +3,7 @@
 There's something difference compared to neuraltalk2.
 - Instead of using random split, we use [karpathy's split](http://cs.stanford.edu/people/karpathy/deepimagesent/caption_datasets.zip).
 - Put resnet in the loop, instead of preprocessing.
-- Use resnet101; the same way as in knowing when to look (resize and crop).
-
-# TODO:
-- Other models
+- Use resnet152 provided by Pytorch; the same way as in knowing when to look (resize and crop).
 
 # Requirements
 Python 2.7 (no [coco-caption](https://github.com/tylin/coco-caption) version for python 3), pytorch 0.2
