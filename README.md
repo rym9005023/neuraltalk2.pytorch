@@ -38,7 +38,7 @@ This is telling the script to read in all the data (the images and the captions)
 **(Copy end.)**
 
 ```bash
-$ python train_pytorch.py --input_json data/cocotalk.json  --input_label_h5 data/cocotalk_label.h5 --input_image_h5 data/cocotalk_image.h5 --beam_size 3 --learning_rate 4e-4  --save_checkpoint_every 6000 --val_images_use 5000 
+$ python train_pytorch.py --input_json data/cocotalk.json  --input_label_h5 data/cocotalk_label.h5 --input_image_h5 data/cocotalk_image.h5 --beam_size 3 --learning_rate 4e-4  --save_checkpoint_every 6000 --val_images_use 5000 --finetune_cnn_after 20
 ```
 
 The train script will take over, and start dumping checkpoints into the folder specified by `checkpoint_path` (default = current folder). For more options, see `opts.py`.
