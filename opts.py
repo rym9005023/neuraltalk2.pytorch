@@ -5,12 +5,14 @@ def parse_opt():
     # Data input settings
     parser.add_argument('--input_json', type=str, default='data/coco.json',
                     help='path to the json file containing additional info and vocab')
-    parser.add_argument('--input_fc_dir', type=str, default='data/cocotalk_fc',
-                    help='path to the directory containing the preprocessed fc feats')
-    parser.add_argument('--input_att_dir', type=str, default='data/cocotalk_att',
-                    help='path to the directory containing the preprocessed att feats')
     parser.add_argument('--input_label_h5', type=str, default='data/coco_label.h5',
-                    help='path to the h5file containing the preprocessed dataset')
+                    help='path to the h5file containing the preprocessed label')
+    parser.add_argument('--input_image_h5', type=str, default='data/coco_image.h5',
+                    help='path to the h5file containing the preprocessed image')
+    parser.add_argument('--cnn_model', type=str, default='resnet101',
+                    help='resnet')
+    parser.add_argument('--cnn_weight', type=str, default='resnet101.pth',
+                    help='path to CNN tf model. Note this MUST be a resnet right now.')
     parser.add_argument('--start_from', type=str, default=None,
                     help="""continue training from saved model at this path. Path must contain files saved by previous training process: 
                         'infos.pkl'         : configuration;
@@ -46,6 +48,8 @@ def parse_opt():
                     help='clip gradients at this value')
     parser.add_argument('--drop_prob_lm', type=float, default=0.5,
                     help='strength of dropout in the Language Model RNN')
+    parser.add_argument('--finetune_cnn_after', type=int, default=-1,
+                    help='After what epoch do we start finetuning the CNN? (-1 = disable; never finetune, 0 = finetune from start)')
     parser.add_argument('--seq_per_img', type=int, default=5,
                     help='number of captions to sample for each image during training. Done for efficiency since CNN forward pass is expensive. E.g. coco has 5 sents/image')
     parser.add_argument('--beam_size', type=int, default=1,
@@ -62,14 +66,24 @@ def parse_opt():
                     help='every how many iterations thereafter to drop LR?(in epoch)')
     parser.add_argument('--learning_rate_decay_rate', type=float, default=0.8, 
                     help='every how many iterations thereafter to drop LR?(in epoch)')
-    parser.add_argument('--optim_alpha', type=float, default=0.9,
+    parser.add_argument('--optim_alpha', type=float, default=0.8,
                     help='alpha for adam')
     parser.add_argument('--optim_beta', type=float, default=0.999,
                     help='beta used for adam')
     parser.add_argument('--optim_epsilon', type=float, default=1e-8,
                     help='epsilon that goes into denominator for smoothing')
-    parser.add_argument('--weight_decay', type=float, default=0,
-                    help='weight_decay')
+
+    #Optimization: for the CNN
+    parser.add_argument('--cnn_optim', type=str, default='adam',
+                    help='optimization to use for CNN')
+    parser.add_argument('--cnn_optim_alpha', type=float, default=0.8,
+                    help='alpha for momentum of CNN')
+    parser.add_argument('--cnn_optim_beta', type=float, default=0.999,
+                    help='beta for momentum of CNN')
+    parser.add_argument('--cnn_learning_rate', type=float, default=1e-5,
+                    help='learning rate for the CNN')
+    parser.add_argument('--cnn_weight_decay', type=float, default=0,
+                    help='L2 weight decay just for the CNN')
 
     parser.add_argument('--scheduled_sampling_start', type=int, default=-1, 
                     help='at what iteration to start decay gt probability')

@@ -7,26 +7,13 @@ import h5py
 import os
 import numpy as np
 import random
+from scipy.misc import imread, imresize
 import torch
-from torch.autograd import Variable
-import skimage
-import skimage.io
-import scipy.misc
-
 from torchvision import transforms as trn
 preprocess = trn.Compose([
         #trn.ToTensor(),
         trn.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
-
-from misc.resnet_utils import myResnet
-import misc.resnet as resnet
-
-resnet = resnet.resnet101()
-resnet.load_state_dict(torch.load('/home-nfs/rluo/rluo/model/pytorch-resnet/resnet101.pth'))
-my_resnet = myResnet(resnet)
-my_resnet.cuda()
-my_resnet.eval()
 
 class DataLoaderRaw():
     
@@ -82,8 +69,7 @@ class DataLoaderRaw():
         batch_size = batch_size or self.batch_size
 
         # pick an index of the datapoint to load next
-        fc_batch = np.ndarray((batch_size, 2048), dtype = 'float32')
-        att_batch = np.ndarray((batch_size, 14, 14, 2048), dtype = 'float32')
+        img_batch = np.ndarray([batch_size, 3, 256,256], dtype = 'float32')
         max_index = self.N
         wrapped = False
         infos = []
@@ -97,19 +83,14 @@ class DataLoaderRaw():
                 # wrap back around
             self.iterator = ri_next
 
-            img = skimage.io.imread(self.files[ri])
+            img = imread(self.files[ri])
+            img = imresize(img, (256,256))
 
             if len(img.shape) == 2:
                 img = img[:,:,np.newaxis]
                 img = np.concatenate((img, img, img), axis=2)
 
-            img = img.astype('float32')/255.0
-            img = torch.from_numpy(img.transpose([2,0,1])).cuda()
-            img = Variable(preprocess(img), volatile=True)
-            tmp_fc, tmp_att = my_resnet(img)
-
-            fc_batch[i] = tmp_fc.data.cpu().float().numpy()
-            att_batch[i] = tmp_att.data.cpu().float().numpy()
+            img_batch[i] = preprocess(torch.from_numpy(img.transpose(2,0,1).astype('float32')/255.0)).numpy()
 
             info_struct = {}
             info_struct['id'] = self.ids[ri]
@@ -117,8 +98,7 @@ class DataLoaderRaw():
             infos.append(info_struct)
 
         data = {}
-        data['fc_feats'] = fc_batch
-        data['att_feats'] = att_batch
+        data['images'] = img_batch
         data['bounds'] = {'it_pos_now': self.iterator, 'it_max': self.N, 'wrapped': wrapped}
         data['infos'] = infos
 
