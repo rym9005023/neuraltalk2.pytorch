@@ -12,7 +12,7 @@ import random
 
 def build_cnn(opt):
     net = getattr(resnet, opt.cnn_model)()
-    if vars(opt).get('start_from', None) is None and vars(opt).get('cnn_weight', '') != '':
+    if True:
         net.load_state_dict(torch.load(opt.cnn_weight))
     net = nn.Sequential(\
         net.conv1,
@@ -23,8 +23,18 @@ def build_cnn(opt):
         net.layer2,
         net.layer3,
         net.layer4)
-    if vars(opt).get('start_from', None) is not None:
+    print('###freeze layers###')
+    for name, param in net.named_parameters():
+        if 'bn' in name:
+           param.requires_grad = False
+           print (name,end=' ')
+    print ('')
+    print ('###end of list###')
+    try:
+      if vars(opt).get('start_from', None) is not None:
         net.load_state_dict(torch.load(os.path.join(opt.start_from, 'model-cnn.pth')))
+    except:
+        print('load save failed')
     return net
 
 def prepro_images(imgs, data_augment=False):
