@@ -38,12 +38,11 @@ This is telling the script to read in all the data (the images and the captions)
 **(Copy end.)**
 
 ```bash
-$ python train.py --input_json data/cocotalk.json --input_json --input_label_h5 data/cocotalk_label.h5 --input_image_h5 data/cocotalk_image.h5 --beam_size 1 --learning_rate 5e-4 --learning_rate_decay_start 0 --scheduled_sampling_start 0 --save_checkpoint_every 6000 --val_images_use 5000 --cnn_model resnet101 --cnn_weight resnet101.pth
+$ python train_pytorch.py --input_json data/cocotalk.json  --input_label_h5 data/cocotalk_label.h5 --input_image_h5 data/cocotalk_image.h5 --beam_size 3 --learning_rate 4e-4  --save_checkpoint_every 6000 --val_images_use 5000 
 ```
 
 The train script will take over, and start dumping checkpoints into the folder specified by `checkpoint_path` (default = current folder). For more options, see `opts.py`.
 
-**You have to download pretrained resnet101 weights from [pytorch-resnet](https://github.com/ruotianluo/pytorch-resnet.git). Don't use default torchvision resnet weights.** 
 
 
 If you have tensorflow, you can run train.py instead of `train_tb.py`. `train_tb.py` saves learning curves by summary writer, and can be visualized using tensorboard.
